@@ -21,11 +21,10 @@
 
 //This constants will modify controller behavior
 //FLOOR sets the base height to measure volume. Defaults to 100 milimeters
-//FREQ_M sets frequence multiplier. Higher values will increase theremin's sensitivity
+//FREQ_M sets frequence multiplier. Higher values will increase theremin's "sensitivity"
 //VOLUME_M sets volume multipliyer. Have in mind that valid volume range goes from 0.0 to 1.0 
-#define THMN_FLOOR 100
-#define THMN_FREQ_M_X 0.2
-#define THMN_FREQ_M_Y 0.05
+#define THMN_FLOOR 200
+#define THMN_FREQ_M_X 12
 #define THMN_VOLUME_M 500
 
 using namespace Leap;
@@ -83,54 +82,28 @@ void ThereminController::onExit(const Controller& controller) {
 void ThereminController::onFrame(const Controller& controller) {
   // Get the most recent frame and report some basic information
   const Frame frame = controller.frame();
-  /*std::cout << "Frame id: " << frame.id()
-            << ", timestamp: " << frame.timestamp()
-            << ", hands: " << frame.hands().count()
-            << ", fingers: " << frame.fingers().count()
-            << ", tools: " << frame.tools().count()
-            << ", gestures: " << frame.gestures().count() << std::endl;
-  */
 
   if (frame.hands().count()>=2) {
-    Musica mu;
     // Get the first hand
     const Hand vHand = frame.hands().leftmost();
     const Hand pHand = frame.hands().rightmost();
 
-    //freq=(pHand.palmPosition().x)*THMN_FREQ_M-200;
     volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;
 
     double x=0,y=0,z=0;
     x=pHand.palmPosition().x;
-    y=0;//(pHand.palmPosition().y-THMN_FLOOR);
-    z=0;//abs(pHand.palmPosition().z);
-    /*int fingerCount;
+    y=0;
     
-    
-    fingerCount=pHand.pointables().count();
-    if(fingerCount){
-	    for(int i=0; i<fingerCount;i++){
-	    	x+=abs(pHand.pointables()[i].tipPosition().x);
-	    	y+=abs(pHand.pointables()[i].tipPosition().y);
-	    	z+=abs(pHand.pointables()[i].tipPosition().z);	
-	    }
-	    x=x/fingerCount;
-	    y=y/fingerCount-THMN_FLOOR;
-	    z=z/fingerCount;
+	//std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
 
-	    std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
+	volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;
 
+	freq=130*pow(2,x*THMN_FREQ_M_X/1200);
 
-	    volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;*/
-	    
-	    //freq=mu.normalizar((x+y+z)*THMN_FREQ_M);
-	    freq=(x+y+z)*THMN_FREQ_M;
-	    if(volume<0) volume=0;
-	    //else if(volume>1) volume=1;
-	    if(freq<0) freq=0;
-	    play();
-	    //std::cout << "Frequency: " << freq << ", Volume: " << volume << std::endl;
-    //}
+	if(volume<0) volume=0;
+	if(freq<0) freq=0;
+	play();
+
   }
 }
 
