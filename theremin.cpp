@@ -15,6 +15,7 @@
  * along with LeapTheremin.  If not, see <http://www.gnu.org/licenses/>.     *
 \*****************************************************************************/
 #include <iostream>
+#include <cmath>
 #include "Leap.h"
 #include "CsAudio.h"
 #include "notas.h"
@@ -25,7 +26,7 @@
 //VOLUME_M sets volume multipliyer. Have in mind that valid volume range goes from 0.0 to 1.0 
 #define THMN_FLOOR 200
 #define THMN_FREQ_M_X 12
-#define THMN_VOLUME_M 500
+#define THMN_VOLUME_M 20
 
 using namespace Leap;
 
@@ -51,6 +52,7 @@ ThereminController::ThereminController() : Listener() {
   freq=440.0;
   volume=0.001;
   audio=NULL;
+  std::cout << "Creating controller" << std::endl;
 }
 
 void ThereminController::setAudio(AudioLib* audio) {
@@ -83,27 +85,41 @@ void ThereminController::onFrame(const Controller& controller) {
   // Get the most recent frame and report some basic information
   const Frame frame = controller.frame();
 
+  InteractionBox iBox = frame.interactionBox();
+
   if (frame.hands().count()>=2) {
     // Get the first hand
     const Hand vHand = frame.hands().leftmost();
     const Hand pHand = frame.hands().rightmost();
 
-    volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;
+    Leap::Vector vPoint=vHand.palmPosition();
+    Leap::Vector vPointN=iBox.normalizePoint(vPoint, true);
+
+    volume=vPointN.y*30000-1000;
+
+
 
     double x=0,y=0,z=0;
-    x=pHand.palmPosition().x;
-    y=0;
-    
-	//std::cout << "X: " << x << " Y: " << y << " Z: " << z << std::endl;
+    Leap::Vector leapPoint=pHand.palmPosition();
+    Leap::Vector normalizedPoint=iBox.normalizePoint(leapPoint, false);
+    x=normalizedPoint.x;
+    y=pHand.palmPosition().y;
+    z=pHand.palmPosition().z;
 
-	volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;
+	//volume=(vHand.palmPosition().y-THMN_FLOOR)*THMN_VOLUME_M;
 
-	freq=130*pow(2,x*THMN_FREQ_M_X/1200);
+	freq=4000 - abs(normalizedPoint.y*3500);
+
+	std::cout << "X: " << x << " Y: " << y << " Z: " << z << "volume: " << volume  << "freq: " << freq << std::endl;
 
 	if(volume<0) volume=0;
 	if(freq<0) freq=0;
 	play();
 
+  } else  {
+      volume=0;
+      freq=0;
+      play();
   }
 }
 
@@ -117,7 +133,7 @@ void ThereminController::onFocusLost(const Controller& controller) {
 
 ThereminController listener;
 
-int main(int argc,char** argv) {
+int main(int argc,const char** argv) {
 
   CsAudio audio;
   Controller controller;

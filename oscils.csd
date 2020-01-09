@@ -2,7 +2,7 @@
 <CsOptions>
 ; Select audio/midi flags here according to platform
 ; Audio out   Audio in    No messages
--odac           -iadc     -d     ;;;RT audio I/O
+-odac     ;;;RT audio I/O
 ;-+rtaudio=alsa -odac -d -m0 
 ; For Non-realtime ouput leave only the line below:
 ; -o oscils.wav -W ;;; for file output any platform
@@ -13,10 +13,11 @@
 sr = 44100
 kr = 4410
 ksmps = 10
-nchnls = 1
+nchnls = 2
 
 kval init 440;
 
+; Instrument #1 - a fast sine oscillator.
 ; Instrument #1 - a fast sine oscillator.
 instr 1
 
@@ -24,9 +25,28 @@ instr 1
   kval chnget "pitch"
   kamp chnget "volume"
   iws chnget "waveshape"
+
+  a1 oscil kamp,kval,1, iphs
+  a2 oscil kamp,kval,3, iphs
+
+  asig = a1 + a2
+  outs asig,asig
+endin
+
+instr 2
+
+  iphs = 0
+  kval chnget "pitch"
+  kamp chnget "volume"
+  iws chnget "waveshape"
   
-  a1 oscil kamp,kval,p4, iphs
-  out a1
+  a1 oscil kamp,kval,1, iphs
+  a2 oscil kamp,kval,3, iphs
+
+  kton line 10000, 20, 2
+  asig = a1 + a2
+  asig tone asig, kton
+  outs asig,asig
 endin
 
 </CsInstruments>
@@ -39,7 +59,8 @@ f3 0 16384 10 1 0   0.3 0    0.2 0     0.14 0     .111   ; Square
 f4 0 16384 10 1 1   1   1    0.7 0.5   0.3  0.1          ; Pulse
 f5 0 65536 19 .5 1 0 0 					 ; Theremin
 
-i 1 0 -1 2
+i 1 0 5 2
+i 2 5 -1 2
 ;i 1 1 10 1
 ;i 1 10 10 2
 ;i 1 20 10 3

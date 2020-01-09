@@ -38,7 +38,7 @@ class CsAudio : public AudioLib {
 	MYFLT* wvalue;
 	void* ThreadID; 
   public:
-    int initializeAudio(int argc,char**argv);
+    int initializeAudio(int argc,const char**argv);
     int play(double freq, double volume);
     int setSound(int waveshape);
     void destroy();

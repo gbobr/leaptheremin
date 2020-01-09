@@ -21,7 +21,7 @@
 
 uintptr_t csThread(void *data);
 
-int CsAudio::initializeAudio(int argc,char** argv) { 
+int CsAudio::initializeAudio(int argc, const char** argv) { 
 
 	ud.csound=csoundCreate(NULL);  
 	if(ud.csound == NULL){

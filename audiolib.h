@@ -20,7 +20,7 @@
 
 class AudioLib {
   public:
-    virtual int initializeAudio(int argc,char** argv)=0;
+    virtual int initializeAudio(int argc,const char** argv)=0;
     virtual int play(double freq, double volume)=0;
     virtual int setSound(int waveshape)=0;
     virtual void destroy()=0;
